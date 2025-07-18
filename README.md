@@ -307,6 +307,74 @@ FROM php:8.2-fpm
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
+## 📋 Notas Técnicas
+
+### Decisões Arquiteturais
+
+#### 🔗 Relacionamento User-Contact
+**Decisão:** Adicionado campo `user_id` na tabela `contacts`
+- **Justificativa:** Permite vincular contatos ao usuário autenticado
+- **Benefício:** Segurança e isolamento de dados por usuário
+- **Implementação:** Foreign key com cascade delete
+
+#### 🏗️ Padrão Repository + Service Layer
+**Decisão:** Implementação de Repository Pattern com Service Layer
+- **Justificativa:** Separação clara de responsabilidades
+- **Benefício:** Código testável, manutenível e escalável
+- **Implementação:** ContactRepository encapsula queries, ContactService orquestra operações
+
+#### 🔐 Autenticação JWT
+**Decisão:** Uso de JWT (tymon/jwt-auth) em vez de Sanctum
+- **Justificativa:** Melhor para APIs stateless
+- **Benefício:** Performance e escalabilidade
+- **Implementação:** Middleware `auth:api` + `CheckRole`
+
+#### 📍 Integração ViaCEP
+**Decisão:** Integração automática ao fornecer apenas CEP
+- **Justificativa:** Melhora UX e reduz erros de digitação
+- **Benefício:** Dados de endereço consistentes
+- **Implementação:** AddressService com fallback e logs
+
+#### 🧪 Estratégia de Testes
+**Decisão:** Testes de integração com Feature Tests
+- **Justificativa:** Cobertura completa do fluxo da API
+- **Benefício:** Garantia de qualidade e regressão
+- **Implementação:** PHPUnit com RefreshDatabase
+
+### Melhorias Implementadas
+
+#### ✅ Extras Implementados
+- **Soft Deletes:** Contatos não são deletados permanentemente
+- **Logs Estruturados:** Auditoria completa de operações
+- **Validações Robustas:** Regex para CEP e telefone
+- **Respostas Padronizadas:** Estrutura JSON consistente
+- **Índices de Performance:** Otimização de consultas
+
+#### 🔧 Configurações de Segurança
+- **CORS:** Configurado para APIs
+- **Rate Limiting:** Proteção contra abuso
+- **Validação de Entrada:** Form Requests com mensagens customizadas
+- **Proteção SQL Injection:** Eloquent ORM
+- **Controle de Acesso:** Middleware de roles
+
+### Estrutura de Banco de Dados
+
+#### Tabelas Principais
+```sql
+-- Estrutura mínima exigida + melhorias
+contacts: id, user_id, name, description, created_at, updated_at, deleted_at
+addresses: id, id_contact, zip_code, country, state, street_address, address_number, city, address_line, neighborhood, created_at, updated_at
+phones: id, id_contact, phone, created_at, updated_at
+emails: id, id_contact, email, created_at, updated_at
+users: id, username, password, role, created_at, updated_at
+```
+
+#### Relacionamentos
+- `users` → `contacts` (1:N)
+- `contacts` → `addresses` (1:1)
+- `contacts` → `phones` (1:N)
+- `contacts` → `emails` (1:N)
+
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
