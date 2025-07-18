@@ -1,0 +1,295 @@
+{
+	"info": {
+		"_postman_id": "hbi-credito-api-collection",
+		"name": "HBI Crédito - API de Contatos",
+		"description": "API RESTful para gerenciamento de contatos com autenticação JWT e controle de acesso baseado em roles.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "hbi-credito"
+	},
+	"item": [
+		{
+			"name": "🔐 Autenticação",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"login"
+							]
+						},
+						"description": "Fazer login e obter token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"logout"
+							]
+						},
+						"description": "Fazer logout e invalidar token"
+					},
+					"response": []
+				},
+				{
+					"name": "Meu Perfil",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"me"
+							]
+						},
+						"description": "Obter dados do usuário autenticado"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticação e gerenciamento de usuário"
+		},
+		{
+			"name": "👥 Contatos",
+			"item": [
+				{
+					"name": "Listar Contatos",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contacts"
+							]
+						},
+						"description": "Listar todos os contatos do usuário autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Contato",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"João Silva\",\n    \"description\": \"Cliente importante\",\n    \"address\": {\n        \"zip_code\": \"12345-678\",\n        \"address_number\": \"123\",\n        \"street_address\": \"Rua das Flores\"\n    },\n    \"phones\": [\n        {\"phone\": \"(11) 99999-9999\"}\n    ],\n    \"emails\": [\n        {\"email\": \"joao@email.com\"}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contacts"
+							]
+						},
+						"description": "Criar um novo contato (USUAL/ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar Contato (ADMIN)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"João Silva Atualizado\",\n    \"description\": \"Cliente muito importante\",\n    \"address\": {\n        \"zip_code\": \"54321-876\",\n        \"address_number\": \"456\",\n        \"street_address\": \"Rua das Palmeiras\"\n    },\n    \"phones\": [\n        {\"phone\": \"(11) 88888-8888\"}\n    ],\n    \"emails\": [\n        {\"email\": \"joao.atualizado@email.com\"}\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contacts/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contacts",
+								"1"
+							]
+						},
+						"description": "Atualizar contato existente (apenas ADMIN)"
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar Contato (ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{admin_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/contacts/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contacts",
+								"1"
+							]
+						},
+						"description": "Deletar contato existente (apenas ADMIN)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de gerenciamento de contatos"
+		},
+		{
+			"name": "🔍 Debug",
+			"item": [
+				{
+					"name": "Teste API",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/test",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"test"
+							]
+						},
+						"description": "Teste simples para verificar se a API está funcionando"
+					},
+					"response": []
+				},
+				{
+					"name": "Debug Contatos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/debug/contacts",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"debug",
+								"contacts"
+							]
+						},
+						"description": "Debug para verificar dados no banco (sem autenticação)"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de debug e teste"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "seu_token_jwt_aqui",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "seu_token_admin_aqui",
+			"type": "string"
+		}
+	]
+} 
