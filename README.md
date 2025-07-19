@@ -34,6 +34,35 @@ API RESTful desenvolvida em Laravel para gerenciamento de contatos com autentica
 - Composer
 - MySQL 8.0+
 
+#### Extensões PHP Obrigatórias
+Certifique-se de que as seguintes extensões PHP estejam habilitadas:
+- `mbstring` - Manipulação de strings multibyte
+- `dom` - Manipulação de documentos XML
+- `json` - Codificação/decodificação JSON
+- `libxml` - Biblioteca XML
+- `tokenizer` - Análise de tokens PHP
+- `xml` - Suporte XML
+- `xmlwriter` - Escrita de XML
+
+**Para verificar as extensões instaladas:**
+```bash
+php -m | grep -E "(mbstring|dom|json|libxml|tokenizer|xml|xmlwriter)"
+```
+
+**Para instalar no Windows (XAMPP/WAMP):**
+- Habilite as extensões no arquivo `php.ini`
+- Reinicie o servidor web
+
+**Para instalar no Linux:**
+```bash
+sudo apt-get install php8.2-mbstring php8.2-xml php8.2-json
+```
+
+**Para instalar no macOS:**
+```bash
+brew install php@8.2
+```
+
 ### 1. Clone o repositório
 ```bash
 git clone [URL_DO_REPOSITORIO]
@@ -233,6 +262,35 @@ php artisan test --verbose
 # Executar testes com cobertura (se disponível)
 php artisan test --coverage
 ```
+
+## 🔧 Troubleshooting
+
+### Erro: "PHPUnit requires the extensions"
+Se você encontrar o erro:
+```
+PHPUnit requires the "dom", "json", "libxml", "mbstring", "tokenizer", "xml", "xmlwriter" extensions
+```
+
+**Solução:**
+1. Verifique se as extensões PHP estão habilitadas (veja seção Pré-requisitos)
+2. Reinicie o servidor web após habilitar as extensões
+3. Execute: `composer dump-autoload`
+
+### Erro: "Call to undefined function"
+Se encontrar erros de funções não definidas:
+1. Verifique se o PHP está na versão 8.2+
+2. Habilite as extensões necessárias
+3. Execute: `php artisan config:clear && php artisan cache:clear`
+
+### Erro de conexão com banco de dados
+1. Verifique se o MySQL está rodando
+2. Confirme as credenciais no arquivo `.env`
+3. Execute: `php artisan migrate:status`
+
+### Erro de JWT
+1. Execute: `php artisan jwt:secret`
+2. Verifique se o arquivo `.env` tem a chave JWT_SECRET
+3. Execute: `php artisan config:clear`
 
 ## 🏗️ Arquitetura
 
