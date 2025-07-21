@@ -13,6 +13,7 @@ class ContactRepository
     public function getContactsByUser(int $userId): Collection
     {
         return Contact::where('user_id', $userId)
+            ->whereNull('deleted_at')
             ->with(['address', 'phones', 'emails'])
             ->get();
     }
@@ -30,7 +31,7 @@ class ContactRepository
      */
     public function findByIdOrFail(int $id): Contact
     {
-        return Contact::findOrFail($id);
+        return Contact::where('id', $id)->whereNull('deleted_at')->firstOrFail();
     }
 
     /**

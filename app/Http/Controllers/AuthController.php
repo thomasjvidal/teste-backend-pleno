@@ -56,7 +56,9 @@ class AuthController extends Controller
         $user = auth('api')->user();
 
         return response()->json([
-            'user' => new UserResource($user)
+            'id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role
         ]);
     }
 }

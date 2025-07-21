@@ -51,9 +51,15 @@ class ContactController extends Controller
      */
     public function store(StoreContactRequest $request)
     {
+        $user = auth('api')->user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Não autenticado.'
+            ], 401);
+        }
         DB::beginTransaction();
         try {
-            $contact = $this->contactService->createContact($request->validated(), auth()->user());
+            $contact = $this->contactService->createContact($request->validated(), $user);
             
             DB::commit();
             
@@ -94,6 +100,17 @@ class ContactController extends Controller
      */
     public function update(UpdateContactRequest $request, string $id)
     {
+        $user = auth('api')->user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Não autenticado.'
+            ], 401);
+        }
+        if (strtoupper($user->role) !== 'ADMIN') {
+            return response()->json([
+                'error' => 'Acesso negado. Permissão insuficiente.'
+            ], 403);
+        }
         DB::beginTransaction();
         try {
             $contact = $this->contactService->getContact((int) $id);
@@ -121,6 +138,17 @@ class ContactController extends Controller
      */
     public function destroy(string $id)
     {
+        $user = auth('api')->user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Não autenticado.'
+            ], 401);
+        }
+        if (strtoupper($user->role) !== 'ADMIN') {
+            return response()->json([
+                'error' => 'Acesso negado. Permissão insuficiente.'
+            ], 403);
+        }
         DB::beginTransaction();
         try {
             $contact = $this->contactService->getContact((int) $id);

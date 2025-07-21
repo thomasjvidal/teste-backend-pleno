@@ -15,11 +15,12 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!$request->user() || $request->user()->role !== $role) {
+        $user = auth('api')->user();
+        if (!$user || $user->role !== $role) {
             return response()->json([
                 'error' => 'Acesso negado. Permissão insuficiente.',
                 'required_role' => $role,
-                'user_role' => $request->user() ? $request->user()->role : 'não autenticado'
+                'user_role' => $user ? $user->role : 'não autenticado'
             ], 403);
         }
 

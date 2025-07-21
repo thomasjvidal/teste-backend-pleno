@@ -29,15 +29,11 @@ Route::middleware(['auth:api'])->group(function () {
     // Rotas de autenticação
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
-    
-    // Rotas de contatos (todos os usuários autenticados podem acessar)
+
+    // Todas as rotas de contatos protegidas
     Route::get('/contacts', [ContactController::class, 'index']);
     Route::get('/contacts/{id}', [ContactController::class, 'show']);
     Route::post('/contacts', [ContactController::class, 'store']);
-    
-    // Rotas administrativas (apenas ADMIN)
-    Route::middleware(['checkRole:ADMIN'])->group(function () {
-        Route::put('/contacts/{id}', [ContactController::class, 'update']);
-        Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
-    });
+    Route::put('/contacts/{id}', [ContactController::class, 'update']);
+    Route::delete('/contacts/{id}', [ContactController::class, 'destroy']);
 });

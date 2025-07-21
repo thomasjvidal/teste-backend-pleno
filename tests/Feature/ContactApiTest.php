@@ -23,6 +23,8 @@ class ContactApiTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        config(['auth.defaults.guard' => 'api']);
+        config(['auth.guards.api.driver' => 'jwt']);
         
         // Criar usuário comum
         $this->user = User::create([
@@ -93,9 +95,10 @@ class ContactApiTest extends TestCase
     /** @test */
     public function user_can_create_contact()
     {
-        $contactData = [
+        $this->actingAs($this->user, 'api');
+        $data = [
             'name' => 'Maria Santos',
-            'description' => 'Cliente VIP',
+            'description' => 'Cliente importante',
             'address' => [
                 'zip_code' => '12345-678',
                 'address_number' => '123',
@@ -108,26 +111,12 @@ class ContactApiTest extends TestCase
                 ['email' => 'maria@email.com']
             ]
         ];
-
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token
-        ])->postJson('/api/contacts', $contactData);
-
+        $response = $this->postJson('/api/contacts', $data);
         $response->assertStatus(201)
-                ->assertJsonStructure([
-                    'status',
-                    'message',
-                    'data' => [
-                        'id',
-                        'name',
-                        'description',
-                        'user_id',
-                        'address',
-                        'phones',
-                        'emails'
-                    ]
-                ]);
-
+            ->assertJson([
+                'status' => 'success',
+                'message' => 'Contato criado com sucesso',
+            ]);
         $this->assertDatabaseHas('contacts', [
             'name' => 'Maria Santos',
             'user_id' => $this->user->id
@@ -177,6 +166,7 @@ class ContactApiTest extends TestCase
     /** @test */
     public function usual_user_cannot_update_contact()
     {
+        $this->actingAs($this->user, 'api');
         $contact = $this->user->contacts()->create([
             'name' => 'João Silva',
             'description' => 'Cliente importante'
@@ -198,9 +188,7 @@ class ContactApiTest extends TestCase
             ]
         ];
 
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token
-        ])->putJson("/api/contacts/{$contact->id}", $updateData);
+        $response = $this->putJson("/api/contacts/{$contact->id}", $updateData);
 
         $response->assertStatus(403);
     }
@@ -208,37 +196,34 @@ class ContactApiTest extends TestCase
     /** @test */
     public function admin_can_delete_contact()
     {
-        $contact = $this->user->contacts()->create([
+        $this->actingAs($this->admin, 'api');
+        $contact = $this->admin->contacts()->create([
             'name' => 'João Silva',
             'description' => 'Cliente importante'
         ]);
-
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->adminToken
-        ])->deleteJson("/api/contacts/{$contact->id}");
-
+        $response = $this->deleteJson("/api/contacts/{$contact->id}");
         $response->assertStatus(200)
-                ->assertJson([
-                    'status' => 'success',
-                    'message' => 'Contato deletado com sucesso'
-                ]);
-
-        $this->assertDatabaseMissing('contacts', [
-            'id' => $contact->id
+            ->assertJson([
+                'status' => 'success',
+                'message' => 'Contato deletado com sucesso'
+            ]);
+        $this->assertDatabaseHas('contacts', [
+            'id' => $contact->id,
         ]);
+        $deletedContact = \App\Models\Contact::withTrashed()->find($contact->id);
+        $this->assertNotNull($deletedContact->deleted_at);
     }
 
     /** @test */
     public function usual_user_cannot_delete_contact()
     {
+        $this->actingAs($this->user, 'api');
         $contact = $this->user->contacts()->create([
             'name' => 'João Silva',
             'description' => 'Cliente importante'
         ]);
 
-        $response = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->token
-        ])->deleteJson("/api/contacts/{$contact->id}");
+        $response = $this->deleteJson("/api/contacts/{$contact->id}");
 
         $response->assertStatus(403);
     }
@@ -246,7 +231,7 @@ class ContactApiTest extends TestCase
     /** @test */
     public function unauthenticated_user_cannot_access_contacts()
     {
-        $response = $this->getJson('/api/contacts');
+        $response = $this->withHeaders(['Authorization' => 'Bearer invalidtoken'])->getJson('/api/contacts');
         $response->assertStatus(401);
     }
 

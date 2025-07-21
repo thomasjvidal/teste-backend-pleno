@@ -38,8 +38,9 @@ class ContactService
         DB::beginTransaction();
         
         try {
-            // Criar o contato associado ao usuário
+            // Forçar user_id correto
             $contact = $user->contacts()->create([
+                'user_id' => $user->id,
                 'name' => $data['name'],
                 'description' => $data['description'],
             ]);
