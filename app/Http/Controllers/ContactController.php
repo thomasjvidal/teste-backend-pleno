@@ -25,8 +25,14 @@ class ContactController extends Controller
      */
     public function index()
     {
+        $user = auth('api')->user();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Não autenticado.'
+            ], 401);
+        }
         try {
-            $contacts = $this->contactService->getContactsByUser(auth()->id());
+            $contacts = $this->contactService->getContactsByUser($user->id);
             
             return response()->json([
                 'status' => 'success',
@@ -34,7 +40,7 @@ class ContactController extends Controller
                 'data' => ContactResource::collection($contacts),
                 'meta' => [
                     'total' => $contacts->count(),
-                    'user_id' => auth()->id(),
+                    'user_id' => $user->id,
                 ]
             ], 200);
         } catch (\Exception $e) {
